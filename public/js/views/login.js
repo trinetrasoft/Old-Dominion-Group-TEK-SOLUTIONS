@@ -1,6 +1,7 @@
 import { api, bindForm } from '../api.js';
 import { setSession } from '../state.js';
 import { icon } from '../icons.js';
+import { toast } from '../ui/toast.js';
 
 const DEMO_PASSWORD = 'OdgDemo!2026x';
 const DEMO_ACCOUNTS = [
@@ -13,6 +14,22 @@ const DEMO_ACCOUNTS = [
   { email: 'grace@odg.example', role: 'Accounting' },
   { email: 'vendor@tidewatermech.example', role: 'Vendor' },
 ];
+
+async function doLogin(email, password) {
+  const data = await api('/auth/login', { method: 'POST', body: { email, password } });
+  setSession(data);
+  location.hash = '#/dashboard';
+  window.render?.();
+}
+
+function showLoginError(message) {
+  const el = document.getElementById('login-err');
+  if (el) {
+    el.textContent = message;
+    el.hidden = false;
+  }
+  toast(message, true);
+}
 
 export function viewLogin() {
   const app = document.getElementById('app');
@@ -36,33 +53,29 @@ export function viewLogin() {
           <h1 class="login-title">Sign in</h1>
           <p class="sub">Access the ODG Operations Platform</p>
           <form id="login-form">
-            <label class="f"><span>Email</span><input name="email" type="email" required autocomplete="username" value="admin@odg.example"></label>
+            <label class="f"><span>Email</span><input name="email" type="email" required autocomplete="username"></label>
             <div style="height:14px"></div>
-            <label class="f"><span>Password</span><input name="password" type="password" required autocomplete="current-password" value="${DEMO_PASSWORD}"></label>
+            <label class="f"><span>Password</span><input name="password" type="password" required autocomplete="current-password"></label>
             <div style="height:20px"></div>
             <button class="btn primary" type="submit">${icon('chevron-right', 'icon icon-sm')} Sign in</button>
             <p class="error-msg" id="login-err" hidden role="alert"></p>
           </form>
 
-          <div class="demo-creds" aria-label="Demo login credentials">
+          <div class="demo-creds" aria-label="Quick demo sign-in">
             <div class="demo-creds-head">
-              <strong>Demo credentials</strong>
-              <span>Password for all accounts</span>
-            </div>
-            <div class="demo-password">
-              <code id="demo-password">${DEMO_PASSWORD}</code>
-              <button type="button" class="btn sm ghost" id="copy-demo-password" title="Copy password">Copy</button>
+              <strong>Quick demo sign-in</strong>
+              <span>One click — no password needed</span>
             </div>
             <ul class="demo-accounts">
               ${DEMO_ACCOUNTS.map(a => `
                 <li>
-                  <button type="button" class="demo-account" data-email="${a.email}" data-password="${DEMO_PASSWORD}">
+                  <button type="button" class="demo-account" data-email="${a.email}">
                     <span class="demo-role">${a.role}</span>
                     <span class="demo-email">${a.email}</span>
                   </button>
                 </li>`).join('')}
             </ul>
-            <p class="demo-hint">Click an account to fill the form</p>
+            <p class="demo-hint">Click an account to sign in instantly</p>
           </div>
 
           <p class="login-foot">Powered by TEK Solutions · Old Dominion Group</p>
@@ -71,37 +84,29 @@ export function viewLogin() {
     </div>
   </div>`;
 
-  const form = document.getElementById('login-form');
-  const emailInput = form.querySelector('[name=email]');
-  const passwordInput = form.querySelector('[name=password]');
-
   document.querySelectorAll('.demo-account').forEach(btn => {
-    btn.addEventListener('click', () => {
-      emailInput.value = btn.dataset.email;
-      passwordInput.value = btn.dataset.password;
-      emailInput.focus();
+    btn.addEventListener('click', async () => {
+      const email = btn.dataset.email;
+      const err = document.getElementById('login-err');
+      if (err) err.hidden = true;
+      btn.disabled = true;
+      const prev = btn.innerHTML;
+      btn.innerHTML = `<span class="demo-role">Signing in…</span><span class="demo-email">${email}</span>`;
+      try {
+        await doLogin(email, DEMO_PASSWORD);
+      } catch (e) {
+        showLoginError(e.message);
+        btn.disabled = false;
+        btn.innerHTML = prev;
+      }
     });
-  });
-
-  document.getElementById('copy-demo-password')?.addEventListener('click', async () => {
-    try {
-      await navigator.clipboard.writeText(DEMO_PASSWORD);
-      const b = document.getElementById('copy-demo-password');
-      b.textContent = 'Copied';
-      setTimeout(() => { b.textContent = 'Copy'; }, 1500);
-    } catch { /* ignore */ }
   });
 
   bindForm('login-form', async body => {
     try {
-      const data = await api('/auth/login', { method: 'POST', body });
-      setSession(data);
-      location.hash = '#/dashboard';
-      window.render?.();
+      await doLogin(body.email, body.password);
     } catch (e) {
-      const el = document.getElementById('login-err');
-      el.textContent = e.message;
-      el.hidden = false;
+      showLoginError(e.message);
       throw e;
     }
   });

@@ -16,7 +16,7 @@ Built from the "Proposal for Old Dominion Group" business case: the five-stage b
 **Requirements:** Node.js ≥ 22.5
 
 ```bash
-git clone https://github.com/yogi-ts/Old-Dominion-Group-TEK-SOLUTIONS.git
+git clone https://github.com/trinetrasoft/Old-Dominion-Group-TEK-SOLUTIONS.git
 cd Old-Dominion-Group-TEK-SOLUTIONS
 
 cp .env.example .env   # Windows: copy .env.example .env
@@ -31,7 +31,7 @@ Optional checks:
 npm run smoke          # end-to-end checks: auth, RBAC, workflow gates, SoD
 ```
 
-Open **http://localhost:8080** — demo accounts and the shared password are listed on the login page (and printed by `npm run seed`).
+Open **http://localhost:8080** — use **Quick demo sign-in** on the login page (one click per role), or sign in manually with credentials from `npm run seed`.
 
 Demo accounts (all share the password printed by the seed):
 
