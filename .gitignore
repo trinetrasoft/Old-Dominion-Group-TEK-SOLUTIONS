@@ -1,0 +1,11 @@
+node_modules/
+data/
+data/*.db
+.env
+*.log
+.DS_Store
+Thumbs.db
+*.swp
+.vscode/
+.idea/
+{server/

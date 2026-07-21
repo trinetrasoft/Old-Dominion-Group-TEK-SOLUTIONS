@@ -1,0 +1,16 @@
+services:
+  odg:
+    build: .
+    ports:
+      - "8080:8080"
+    environment:
+      NODE_ENV: production
+      DATABASE_PATH: /app/data/odg.db
+      JWT_ACCESS_SECRET: ${JWT_ACCESS_SECRET:?set in .env}
+      JWT_REFRESH_SECRET: ${JWT_REFRESH_SECRET:?set in .env}
+      SEED_ON_BOOT: ${SEED_ON_BOOT:-0}
+    volumes:
+      - odg-data:/app/data
+    restart: unless-stopped
+volumes:
+  odg-data:

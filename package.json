@@ -1,0 +1,24 @@
+{
+  "name": "odg-operations-platform",
+  "version": "1.0.0",
+  "description": "Old Dominion Group Operations Platform - RFQ/Bid management, Vendor Portal, and Project lifecycle with RBAC",
+  "main": "server/index.js",
+  "type": "commonjs",
+  "engines": { "node": ">=22.5.0" },
+  "scripts": {
+    "start": "node server/index.js",
+    "dev": "node --watch server/index.js",
+    "seed": "node server/seed.js",
+    "smoke": "node scripts/smoke.js"
+  },
+  "dependencies": {
+    "bcryptjs": "^3.0.3",
+    "cors": "^2.8.5",
+    "dotenv": "^17.2.3",
+    "express": "^5.2.1",
+    "express-rate-limit": "^8.2.1",
+    "helmet": "^8.1.0",
+    "jsonwebtoken": "^9.0.3",
+    "zod": "^4.3.5"
+  }
+}
